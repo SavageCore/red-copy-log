@@ -40,11 +40,11 @@
 	for (index = 0; index < torrentLinkbox.length; index++) {
 		if (torrentLinkbox[index].innerHTML.indexOf('View Log') !== -1) {
 			const torrentElm = torrentLinkbox[index].querySelector('a:nth-child(2)');
-			torrentElm.addEventListener('contextmenu', copyLogtoClipboard, false);
+			torrentElm.addEventListener('contextmenu', getLogFile, false);
 		}
 	}
 
-	function copyLogtoClipboard(evt) {
+	function getLogFile(evt) {
 		// Retrieve torrentId
 		const torrentId = /show_logs\('([0-9]+)'\)/.exec(evt.target.outerHTML);
 
@@ -54,14 +54,23 @@
 		const logElem = document.querySelector('#logs_' + torrentId[1]);
 		logElem.classList.toggle('hidden');
 
-		// Observe element waiting for log to load
-		observeDOM(logElem, () => {
-			// Get log file pre element
-			const logFile = logElem.children[logElem.children.length - 1].querySelector('pre');
-			if (logFile) {
-				// Add log to clipboard
-				GM_setClipboard(logFile.innerText); // eslint-disable-line new-cap
-			}
-		});
+		const logFile = logElem.children[logElem.children.length - 1].querySelector('pre');
+
+		if (logFile) {
+			copyLogtoClipboard(logFile);
+		} else {
+			// Observe element waiting for log to load
+			observeDOM(logElem, () => {
+				// Get log file pre element
+				const logFile = logElem.children[logElem.children.length - 1].querySelector('pre');
+				if (logFile) {
+					copyLogtoClipboard(logFile);
+				}
+			});
+		}
+	}
+
+	function copyLogtoClipboard(logFile) {
+		GM_setClipboard(logFile.innerText); // eslint-disable-line new-cap
 	}
 })();
