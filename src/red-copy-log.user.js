@@ -52,7 +52,7 @@
 		evt.target.click();
 		// Hide it again
 		const logElem = document.querySelector('#logs_' + torrentId[1]);
-		logElem.className = 'hidden';
+		logElem.classList.toggle('hidden');
 
 		// Observe element waiting for log to load
 		observeDOM(logElem, () => {
