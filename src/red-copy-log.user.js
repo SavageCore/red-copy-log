@@ -6,12 +6,15 @@
 // @author       SavageCore
 // @include      http*://redacted.ch/torrents.php?id=*
 // @grant        GM_setClipboard
+// @grant        GM_addStyle
 // ==/UserScript==
-//
-/* global document window GM_setClipboard */
+
+/* global document window GM_setClipboard GM_addStyle */
 
 (function () {
 	'use strict';
+
+	GM_addStyle('.scSuccess{color:#66BB6A !important}'); // eslint-disable-line new-cap
 
 	// Observe DOM function
 	// https://stackoverflow.com/a/14570614/1190476
@@ -57,20 +60,24 @@
 		const logFile = logElem.children[logElem.children.length - 1].querySelector('pre');
 
 		if (logFile) {
-			copyLogtoClipboard(logFile);
+			copyLogtoClipboard(logFile, evt.target);
 		} else {
 			// Observe element waiting for log to load
 			observeDOM(logElem, () => {
 				// Get log file pre element
 				const logFile = logElem.children[logElem.children.length - 1].querySelector('pre');
 				if (logFile) {
-					copyLogtoClipboard(logFile);
+					copyLogtoClipboard(logFile, evt.target);
 				}
 			});
 		}
 	}
 
-	function copyLogtoClipboard(logFile) {
+	function copyLogtoClipboard(logFile, target) {
 		GM_setClipboard(logFile.innerText); // eslint-disable-line new-cap
+		target.classList.toggle('scSuccess');
+		setTimeout(() => {
+			target.classList.toggle('scSuccess');
+		}, 1500);
 	}
 })();
