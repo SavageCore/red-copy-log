@@ -1,10 +1,12 @@
 // ==UserScript==
-// @name         RED Copy Log
+// @name         Gazelle Copy Log
 // @namespace    https://savagecore.eu
 // @version      0.1.1
 // @description  Right click View Log to copy to clipboard
 // @author       SavageCore
 // @include      http*://redacted.ch/torrents.php?id=*
+// @include      http*://apollo.rip/torrents.php?id=*
+// @include      http*://notwhat.cd/torrents.php?id=*
 // @grant        GM_setClipboard
 // @grant        GM_addStyle
 // ==/UserScript==
@@ -13,6 +15,20 @@
 
 (function () {
 	'use strict';
+
+	let site;
+	let logLinkSelector;
+
+	if (/https?.*?redacted\.ch.*/.test(document.URL)) {
+		site = 'redacted';
+		logLinkSelector = 'a:nth-child(2)';
+	} else if (/https?.*?apollo\.rip.*/.test(document.URL)) {
+		site = 'apollo';
+		logLinkSelector = 'a:nth-child(2)';
+	} else if (/https?.*?notwhat\.cd.*/.test(document.URL)) {
+		site = 'notwhat';
+		logLinkSelector = 'a:nth-child(3)';
+	}
 
 	GM_addStyle('.scSuccess{color:#66BB6A !important}'); // eslint-disable-line new-cap
 
@@ -41,33 +57,51 @@
 	const torrentLinkbox = document.body.querySelectorAll('td > div.linkbox');
 	let index = 0;
 	for (index = 0; index < torrentLinkbox.length; index++) {
-		if (torrentLinkbox[index].innerHTML.indexOf('View Log') !== -1) {
-			const torrentElm = torrentLinkbox[index].querySelector('a:nth-child(2)');
+		if (torrentLinkbox[index].innerHTML.toLowerCase().indexOf('view log') !== -1) {
+			const torrentElm = torrentLinkbox[index].querySelector(logLinkSelector);
 			torrentElm.addEventListener('contextmenu', getLogFile, false);
 		}
 	}
 
 	function getLogFile(evt) {
+		let torrentId;
+		let logSelector;
+		let logFile;
+
 		// Retrieve torrentId
-		const torrentId = /show_logs\('([0-9]+)'\)/.exec(evt.target.outerHTML);
+		switch (site) {
+			case 'apollo':
+				torrentId = /show_logs\('([0-9]+)',.+\)/.exec(evt.target.outerHTML);
+				logSelector = '#viewlog_' + torrentId[1];
+				break;
+			case 'redacted':
+				torrentId = /show_logs\('([0-9]+)'\)/.exec(evt.target.outerHTML);
+				logSelector = '#logs_' + torrentId[1];
+				break;
+			case 'notwhat':
+				torrentId = /show_log\('([0-9]+)'\)/.exec(evt.target.outerHTML);
+				logSelector = '#log_' + torrentId[1];
+				break;
+			default:
+				break;
+		}
 
 		// Load log by clicking element
 		evt.target.click();
-		// Hide it again
-		const logElem = document.querySelector('#logs_' + torrentId[1]);
-		logElem.classList.toggle('hidden');
+		const logElem = document.querySelector(logSelector);
 
-		const logFile = logElem.children[logElem.children.length - 1].querySelector('pre');
-
-		if (logFile) {
-			copyLogtoClipboard(logFile, evt.target);
+		logFile = logElem.querySelectorAll('pre');
+		if (logFile[0]) {
+			evt.target.click();
+			copyLogtoClipboard(logFile[logFile.length - 1], evt.target);
 		} else {
 			// Observe element waiting for log to load
 			observeDOM(logElem, () => {
 				// Get log file pre element
-				const logFile = logElem.children[logElem.children.length - 1].querySelector('pre');
+				logFile = logElem.querySelectorAll('pre');
 				if (logFile) {
-					copyLogtoClipboard(logFile, evt.target);
+					evt.target.click();
+					copyLogtoClipboard(logFile[logFile.length - 1], evt.target);
 				}
 			});
 		}
