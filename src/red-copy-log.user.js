@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Gazelle Copy Log
 // @namespace    https://savagecore.eu
-// @version      0.1.1
+// @version      0.2.1
 // @description  Right click View Log to copy to clipboard
 // @author       SavageCore
 // @include      http*://redacted.ch/torrents.php?id=*
