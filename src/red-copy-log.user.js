@@ -7,11 +7,14 @@
 // @include      http*://redacted.ch/torrents.php?id=*
 // @include      http*://apollo.rip/torrents.php?id=*
 // @include      http*://notwhat.cd/torrents.php?id=*
+// @require      https://greasemonkey.github.io/gm4-polyfill/gm4-polyfill.js
 // @grant        GM_setClipboard
 // @grant        GM_addStyle
+// @grant        GM.setClipboard
+// @grant        GM.addStyle
 // ==/UserScript==
 
-/* global document window GM_setClipboard GM_addStyle */
+/* global document window GM */
 
 (function () {
 	'use strict';
@@ -30,7 +33,7 @@
 		logLinkSelector = 'a:nth-child(3)';
 	}
 
-	GM_addStyle('.scSuccess{color:#66BB6A !important}'); // eslint-disable-line new-cap
+	GM.addStyle('.scSuccess{color:#66BB6A !important}'); // eslint-disable-line new-cap
 
 	// Observe DOM function
 	// https://stackoverflow.com/a/14570614/1190476
@@ -108,7 +111,7 @@
 	}
 
 	function copyLogtoClipboard(logFile, target) {
-		GM_setClipboard(logFile.innerText); // eslint-disable-line new-cap
+		GM.setClipboard(logFile.innerText); // eslint-disable-line new-cap
 		target.classList.toggle('scSuccess');
 		setTimeout(() => {
 			target.classList.toggle('scSuccess');
