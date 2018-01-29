@@ -60,7 +60,7 @@
 	const torrentLinkbox = document.body.querySelectorAll('td > div.linkbox');
 	let index = 0;
 	for (index = 0; index < torrentLinkbox.length; index++) {
-		if (torrentLinkbox[index].innerHTML.toLowerCase().indexOf('view log') !== -1) {
+		if (torrentLinkbox[index].innerHTML.toLowerCase().indexOf('log') !== -1) {
 			const torrentElm = torrentLinkbox[index].querySelector(logLinkSelector);
 			torrentElm.addEventListener('contextmenu', getLogFile, false);
 		}
