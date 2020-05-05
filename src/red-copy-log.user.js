@@ -8,13 +8,11 @@
 // @include      http*://apollo.rip/torrents.php?id=*
 // @include      http*://notwhat.cd/torrents.php?id=*
 // @require      https://greasemonkey.github.io/gm4-polyfill/gm4-polyfill.js
-// @grant        GM_setClipboard
 // @grant        GM_addStyle
-// @grant        GM.setClipboard
 // @grant        GM.addStyle
 // ==/UserScript==
 
-/* global document window GM */
+/* global document window GM navigator */
 
 (function () {
 	'use strict';
@@ -110,8 +108,12 @@
 		}
 	}
 
-	function copyLogtoClipboard(logFile, target) {
-		GM.setClipboard(logFile.innerText); // eslint-disable-line new-cap
+	async function copyLogtoClipboard(logFile, target) {
+		await navigator.clipboard.writeText(logFile.innerText)
+			.catch(err => {
+				console.error('Could not copy to clipboard: ', err);
+			});
+
 		target.classList.toggle('scSuccess');
 		setTimeout(() => {
 			target.classList.toggle('scSuccess');
